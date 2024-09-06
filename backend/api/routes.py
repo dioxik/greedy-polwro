@@ -1,3 +1,5 @@
+# backend/api/routes.py
+
 from flask import Flask, jsonify, request
 
 def setup_routes(app: Flask):
@@ -8,5 +10,11 @@ def setup_routes(app: Flask):
     @app.route('/api/greedy-search', methods=['POST'])
     def perform_greedy_search():
         data = request.json
-        # Tu umieść logikę przeszukiwania z algorytmem zachłannym
-        return jsonify({"message": "Greedy search results"})
+        options = data.get('options', [])  # Opcje do przeszukania
+        
+        # Implementacja algorytmu przeszukiwania z zachłannością
+        # Tutaj umieść logikę algorytmu
+        
+        # Zwracamy wyniki
+        results = {}  # Tutaj będą wyniki przeszukiwania
+        return jsonify(results)

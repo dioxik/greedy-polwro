@@ -13,9 +13,13 @@ services:
       FLASK_APP: app.py
 
   frontend:
-    build:
+ #   image: greedy-polwro-frontend
+    build: 
       context: ./frontend
-    volumes:
-      - ./frontend:/usr/share/nginx/html
+      dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "3000:3000"
+
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Dodatkowe ustawienie dla systemów Windows
+      - NODE_OPTIONS=--openssl-legacy-provider

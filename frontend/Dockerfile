@@ -1,8 +1,20 @@
-# Użyj oficjalnego obrazu Nginx jako bazowego
-FROM nginx:alpine
+# Użyj oficjalnego obrazu Node.js
+FROM node:alpine
 
-# Skopiuj pliki frontendowe do katalogu obsługiwanego przez Nginx
-COPY . /usr/share/nginx/html
+# Ustaw zmienną środowiskową
+ENV NODE_OPTIONS=--openssl-legacy-provider
 
-# Exponuj port na zewnątrz kontenera
-EXPOSE 80
+# Ustaw katalog roboczy w kontenerze
+WORKDIR /app
+
+# Skopiuj pliki aplikacji do kontenera
+COPY . .
+
+# Instalacja zależności
+RUN npm install
+
+# Port, na którym działa aplikacja
+EXPOSE 3000
+
+# Komenda uruchamiająca aplikację
+CMD ["npm", "start"]
