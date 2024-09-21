@@ -3,58 +3,62 @@ import axios from 'axios';
 
 const PropertyPriorityAdmin = () => {
   const [properties, setProperties] = useState([]);
+  const [priorities, setPriorities] = useState({});
 
-  // Pobierz właściwości z backendu przy załadowaniu komponentu
+  // Fetch properties and their priorities
   useEffect(() => {
-    axios.get('http://localhost:3001/api/properties')
-      .then((response) => {
-        setProperties(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching properties:', error);
+    axios.get('http://localhost:3001/api/properties').then((response) => {
+      setProperties(response.data);
+
+      // Initialize priorities with the current values (assuming backend returns them)
+      const initialPriorities = {};
+      response.data.forEach((property) => {
+        initialPriorities[property.id] = property.priority || 0; // Default priority is 0 if not set
       });
+      setPriorities(initialPriorities);
+    });
   }, []);
 
-  // Funkcja do aktualizacji priorytetu dla danej właściwości
-  const updatePriority = (propertyId, priority) => {
-    axios.post('http://localhost:3001/api/update-property-priority', { property_id: propertyId, priority })
+  const handlePriorityChange = (propertyId, value) => {
+    setPriorities({
+      ...priorities,
+      [propertyId]: value,
+    });
+  };
+
+  const handleSave = () => {
+    // Send updated priorities to the backend
+    axios
+      .post('http://localhost:3001/api/properties/priorities', priorities)
       .then(() => {
-        setProperties((prevProperties) =>
-          prevProperties.map((property) =>
-            property.id === propertyId ? { ...property, priority } : property
-          )
-        );
+        alert('Priorities updated successfully');
       })
       .catch((error) => {
-        console.error('Error updating property priority:', error);
+        console.error('Error saving priorities:', error);
       });
   };
 
   return (
     <div>
-      <h3>Zarządzaj Priorytetami Właściwości</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Nazwa Właściwości</th>
-            <th>Priorytet</th>
-          </tr>
-        </thead>
-        <tbody>
-          {properties.map((property) => (
-            <tr key={property.id}>
-              <td>{property.property_name}</td>
-              <td>
-                <input
-                  type="number"
-                  value={property.priority}
-                  onChange={(e) => updatePriority(property.id, e.target.value)}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <h2>Property Priority Management</h2>
+      <div>
+        {properties.map((property) => (
+          <div key={property.id}>
+            <label>
+              {property.property_name}: {priorities[property.id]}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="10"
+              value={priorities[property.id]}
+              onChange={(e) => handlePriorityChange(property.id, e.target.value)}
+            />
+          </div>
+        ))}
+      </div>
+
+      <button onClick={handleSave}>Save Priorities</button>
     </div>
   );
 };
