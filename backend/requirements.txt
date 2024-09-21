@@ -1,6 +1,3 @@
 Flask
 react 
-express 
-sequelize 
-sqlite3 
-sequelize-cli
+

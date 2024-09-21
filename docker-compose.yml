@@ -1,11 +1,15 @@
 version: '3.8'
 
 services:
+
+
+
   backend:
     build:
       context: ./backend
     volumes:
       - ./backend:/app
+    #command: sh -c "npm install && npx sequelize-cli db:migrate && npm start"
     ports:
       - "5000:5000"
     environment:
@@ -17,9 +21,18 @@ services:
     build: 
       context: ./frontend
       dockerfile: Dockerfile
+    
+    command: sh -c "npm install && npx sequelize-cli db:migrate && npm start"
     ports:
       - "3000:3000"
 
     environment:
       - CHOKIDAR_USEPOLLING=true  # Dodatkowe ustawienie dla systemów Windows
       - NODE_OPTIONS=--openssl-legacy-provider
+  db:
+    build:
+      context: ./data
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/data
+    command: sqlite3 /data/mydatabase.db < /docker-entrypoint-initdb.d/init_db.sql
