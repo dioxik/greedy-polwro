@@ -7,6 +7,8 @@ const InteractiveFilter = () => {
   const [availableProperties, setAvailableProperties] = useState([]);
   const [propertyValues, setPropertyValues] = useState({});
   const [remainingProperties, setRemainingProperties] = useState([]);
+  const [selectedOperators, setSelectedOperators] = useState({});
+  const [showHistory, setShowHistory] = useState(false); // State to toggle history display
 
   // Fetch properties sorted by priority when component mounts
   useEffect(() => {
@@ -38,15 +40,51 @@ const InteractiveFilter = () => {
   };
 
   const handleFilterChange = (property, value) => {
-    const newFilters = [...filters, { property, value }];
+    const operator = selectedOperators[property] || 'equal'; // Default to 'equal' if no operator selected
+
+    // Check if the property is already in the filters, if so, remove it
+    const existingFilterIndex = filters.findIndex(f => f.property === property);
+    let newFilters = [...filters];
+
+    if (existingFilterIndex !== -1) {
+      newFilters.splice(existingFilterIndex, 1); // Remove the previous filter
+    } else {
+      // Add the new filter with the selected operator
+      newFilters.push({ property, value, operator });
+    }
+
     setFilters(newFilters);
 
-    // Filter out the selected property from available options
-    const updatedRemainingProperties = remainingProperties.filter((p) => p.property_name !== property);
-    setRemainingProperties(updatedRemainingProperties);
+    axios
+      .get('http://localhost:3001/api/filter', { params: { filters: JSON.stringify(newFilters) } })
+      .then((response) => {
+        setMaterials(response.data.filteredMaterials);
+      })
+      .catch((error) => {
+        console.error('Error fetching filtered materials:', error);
+      });
+  };
 
-    // Fetch filtered materials based on selected filters
-    axios.get('http://localhost:3001/api/filter', { params: { filters: JSON.stringify(newFilters) } })
+  const handleOperatorChange = (property, operator) => {
+    setSelectedOperators((prevOperators) => ({
+      ...prevOperators,
+      [property]: operator,
+    }));
+  };
+
+  // Toggle the history section
+  const toggleHistory = () => {
+    setShowHistory(!showHistory);
+  };
+
+  // Function to remove or edit a filter from the history
+  const removeFilter = (property) => {
+    const newFilters = filters.filter(f => f.property !== property);
+    setFilters(newFilters);
+
+    // Refetch materials with the updated filters
+    axios
+      .get('http://localhost:3001/api/filter', { params: { filters: JSON.stringify(newFilters) } })
       .then((response) => {
         setMaterials(response.data.filteredMaterials);
       })
@@ -61,6 +99,36 @@ const InteractiveFilter = () => {
       {remainingProperties.slice(0, 3).map((property) => (
         <div key={property.property_name}>
           <h4>{property.property_name}</h4>
+
+          {/* Operator buttons */}
+          <div>
+            <button
+              onClick={() => handleOperatorChange(property.property_name, 'lessOrEqual')}
+              style={{
+                backgroundColor: selectedOperators[property.property_name] === 'lessOrEqual' ? '#ddd' : '#fff'
+              }}
+            >
+              <span>&le;</span> {/* Less than or equal to icon */}
+            </button>
+            <button
+              onClick={() => handleOperatorChange(property.property_name, 'equal')}
+              style={{
+                backgroundColor: selectedOperators[property.property_name] === 'equal' ? '#ddd' : '#fff'
+              }}
+            >
+              <span>=</span> {/* Equal icon */}
+            </button>
+            <button
+              onClick={() => handleOperatorChange(property.property_name, 'greaterOrEqual')}
+              style={{
+                backgroundColor: selectedOperators[property.property_name] === 'greaterOrEqual' ? '#ddd' : '#fff'
+              }}
+            >
+              <span>&ge;</span> {/* Greater than or equal to icon */}
+            </button>
+          </div>
+
+          {/* Property value buttons */}
           {propertyValues[property.property_name] ? (
             <div>
               {propertyValues[property.property_name].map((value, index) => (
@@ -86,6 +154,27 @@ const InteractiveFilter = () => {
           </li>
         ))}
       </ul>
+
+      {/* History Section */}
+      <div>
+        <a href="#" onClick={toggleHistory}>
+          {showHistory ? 'Hide History' : 'Show History'}
+        </a>
+
+        {showHistory && (
+          <div>
+            <h3>Filter History:</h3>
+            <ul>
+              {filters.map((filter, index) => (
+                <li key={index}>
+                  {filter.property} {filter.operator} {filter.value}
+                  <button onClick={() => removeFilter(filter.property)}>Remove</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

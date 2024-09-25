@@ -74,7 +74,9 @@ app.post('/api/properties/priorities', async (req, res) => {
   }
 });
 
-// Dynamic filtering based on user input
+// server.js or app.js
+
+// Dynamic filtering based on user input with operators
 app.get('/api/filter', async (req, res) => {
   const { filters } = req.query;
 
@@ -85,13 +87,14 @@ app.get('/api/filter', async (req, res) => {
       parsedFilters = JSON.parse(filters);
     }
 
+    // Check if parsedFilters is an array
     if (!Array.isArray(parsedFilters)) {
       return res.status(400).json({ error: 'Invalid filters format. Expected an array.' });
     }
 
-    // Build dynamic query
+    // Start the base query
     let query = `
-      SELECT m.name, c.category_name, t.type_name, p.property_name, mp.property_value
+      SELECT DISTINCT m.id, m.name, c.category_name, t.type_name
       FROM materials m
       JOIN categories c ON m.category_id = c.id
       JOIN types t ON m.type_id = t.id
@@ -102,15 +105,32 @@ app.get('/api/filter', async (req, res) => {
 
     const queryParams = [];
 
-    // Dynamically add filters to query
+    // Dynamically add filters to query with comparison operators
     parsedFilters.forEach((filter) => {
+      let operator = '=';
+      
+      // Set operator based on the filter's operator field
+      switch (filter.operator) {
+        case 'lessOrEqual':
+          operator = '<=';
+          break;
+        case 'equal':
+          operator = '=';
+          break;
+        case 'greaterOrEqual':
+          operator = '>=';
+          break;
+        default:
+          operator = '='; // Default is 'equal' if not specified
+      }
+
       query += `
         AND m.id IN (
           SELECT material_id FROM material_properties
           WHERE property_id = (
             SELECT id FROM properties_dictionary WHERE property_name = ?
           )
-          AND property_value = ?
+          AND property_value ${operator} ?
         )
       `;
       queryParams.push(filter.property, filter.value);
@@ -124,6 +144,7 @@ app.get('/api/filter', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 // Route for user login
 app.post('/login', async (req, res) => {
@@ -225,25 +246,43 @@ app.get('/api/materials/:id/properties', authenticate, async (req, res) => {
 
 app.post('/api/materials/:id/properties', authenticate, async (req, res) => {
   const materialId = req.params.id;
-  const propertyValues = req.body;
+  const properties = req.body; // Zawiera obiekt z parami { property_name: property_value }
 
   try {
-    const propertyIds = await db('properties_dictionary').select('id', 'property_name');
+    for (const [propertyName, propertyValue] of Object.entries(properties)) {
+      // Znajdź ID właściwości na podstawie nazwy
+      const property = await db('properties_dictionary')
+        .select('id')
+        .where({ property_name: propertyName })
+        .first();
 
-    const updates = propertyIds.map(({ id, property_name }) => {
-      if (propertyValues.hasOwnProperty(property_name)) {
-        return db('material_properties')
-          .where({ material_id: materialId, property_id: id })
-          .update({ property_value: propertyValues[property_name] });
+      if (!property) {
+        return res.status(404).json({ error: `Property ${propertyName} not found` });
       }
-      return Promise.resolve();
-    });
 
-    await Promise.all(updates);
+      // Sprawdź, czy materiał ma już przypisaną tę właściwość
+      const existingProperty = await db('material_properties')
+        .where({ material_id: materialId, property_id: property.id })
+        .first();
+
+      if (existingProperty) {
+        // Wykonaj UPDATE, jeśli właściwość istnieje
+        await db('material_properties')
+          .where({ material_id: materialId, property_id: property.id })
+          .update({ property_value: propertyValue });
+      } else {
+        // Wykonaj INSERT, jeśli właściwość nie istnieje
+        await db('material_properties').insert({
+          material_id: materialId,
+          property_id: property.id,
+          property_value: propertyValue,
+        });
+      }
+    }
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Error updating material properties:', error);
+    console.error('Error updating or inserting material properties:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
