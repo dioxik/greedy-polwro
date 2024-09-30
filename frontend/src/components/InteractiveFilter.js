@@ -38,7 +38,7 @@ const InteractiveFilter = () => {
     visibleProperties.forEach(property => {
       fetchPropertyValues(property.property_name);
     });
-  }, [visibleProperties]);
+  }, [visibleProperties, fetchPropertyValues]); // Dodano fetchPropertyValues do zależności
 
   const fetchPropertyValues = (propertyName) => {
     if (!propertyValues[propertyName]) {
@@ -240,7 +240,7 @@ const InteractiveFilter = () => {
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, [countdown, isSliderActive]);
+  }, [countdown, isSliderActive, fetchPropertyValues]); // Dodano fetchPropertyValues do zależności
 
   return (
     <div className="interactive-filter">
