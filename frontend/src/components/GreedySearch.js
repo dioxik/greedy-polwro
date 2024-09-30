@@ -10,7 +10,7 @@ function GreedySearch() {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/search', {
+      const response = await axios.get('/api/search', {
         params: { property, value }
       });
       setResults(response.data.materials);

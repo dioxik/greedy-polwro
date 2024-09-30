@@ -7,7 +7,11 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 // Configure CORS
-app.use(cors());
+app.use(cors({
+  origin: true, // Automatically sets the correct origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Setup the database connection (assuming Knex configuration is done)
@@ -33,12 +37,40 @@ app.get('/api/property-values', async (req, res) => {
     if (!property) {
       return res.status(404).json({ error: 'Property not found' });
     }
-
-    // Get distinct values for that property
-    const propertyValues = await db('material_properties')
-      .distinct('property_value')
-      .where({ property_id: property.id });
-
+    const propertyValues = await db.raw(`
+      WITH RECURSIVE RangeSeries(id, material_id, property_id, property_value) AS (
+        -- Pobierz dolną granicę zakresu i zaokrąglij do 2 miejsc po przecinku
+        SELECT id, material_id, property_id,
+               ROUND(CAST(REPLACE(substr(property_value, 1, instr(property_value, '÷') - 1), ',', '.') AS REAL), 2) AS property_value
+        FROM material_properties
+        WHERE property_id = ? AND instr(property_value, '÷') > 0
+        
+        UNION ALL
+        
+        -- Dodawaj 0.01 i zaokrąglij do 2 miejsc po przecinku
+        SELECT id, material_id, property_id, ROUND(property_value + 0.01, 2)
+        FROM RangeSeries
+        WHERE property_value + 0.01 <= (
+          SELECT ROUND(CAST(REPLACE(substr(property_value, instr(property_value, '÷') + 1), ',', '.') AS REAL), 2)
+          FROM material_properties
+          WHERE property_id = ? AND instr(property_value, '÷') > 0
+        )
+      )
+      -- Wybierz wszystkie wygenerowane wartości z zakresów i zaokrąglij do 2 miejsc po przecinku
+      SELECT id, material_id, property_id, ROUND(property_value, 2) AS property_value FROM RangeSeries
+    
+      UNION
+    
+      -- Wybierz oryginalne wartości, które nie są zakresami i zaokrąglij do 2 miejsc po przecinku
+      SELECT id, material_id, property_id,
+             ROUND(CAST(REPLACE(property_value, ',', '.') AS REAL), 2) AS property_value
+      FROM material_properties
+      WHERE property_id = ? AND instr(property_value, '÷') = 0
+    `, [property.id, property.id, property.id]);
+    
+    
+  
+  
     res.json(propertyValues);
   } catch (error) {
     console.error('Error fetching property values:', error);
@@ -111,13 +143,13 @@ app.get('/api/filter', async (req, res) => {
       
       // Set operator based on the filter's operator field
       switch (filter.operator) {
-        case 'lessOrEqual':
+        case 'lessThanOrEqual':
           operator = '<=';
           break;
         case 'equal':
           operator = '=';
           break;
-        case 'greaterOrEqual':
+        case 'greaterThanOrEqual':
           operator = '>=';
           break;
         default:
@@ -279,6 +311,49 @@ app.post('/api/materials/:id/properties', authenticate, async (req, res) => {
         });
       }
     }
+
+// Delete material by ID
+app.delete('/api/materials/:id', authenticate, async (req, res) => {
+  const materialId = req.params.id;
+  try {
+    await db('materials').where({ id: materialId }).del();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting material:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// Add new material
+app.post('/api/materials', authenticate, async (req, res) => {
+  const { name, category, type } = req.body;
+  try {
+    await db('materials').insert({
+      name,
+      category_id: await getCategoryID(category),
+      type_id: await getTypeID(type),
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error adding material:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Helper functions to get category and type IDs from names
+async function getCategoryID(categoryName) {
+  const category = await db('categories').where({ category_name: categoryName }).first();
+  return category ? category.id : null;
+}
+
+async function getTypeID(typeName) {
+  const type = await db('types').where({ type_name: typeName }).first();
+  return type ? type.id : null;
+}
+
+
+
 
     res.json({ success: true });
   } catch (error) {

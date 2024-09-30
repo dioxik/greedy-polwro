@@ -1,0 +1,70 @@
+.priority-manager {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.property-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.property-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.property-name {
+  flex: 1;
+  max-width: 800px; /* Set a fixed width for the property names */
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Ensure long names don't overflow */
+}
+
+.property-slider {
+  flex: 2;
+  max-width: 100px; /* Set a fixed width for the property names */
+  margin: 0 20px; /* Adds space between name and slider */
+}
+
+.edit-button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #108adb;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.delete-button {
+  display: block;
+  background-color: #ff6b51;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.save-button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #45a049;
+}

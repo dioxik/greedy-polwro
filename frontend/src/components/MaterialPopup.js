@@ -9,7 +9,7 @@ const MaterialModal = ({ material, onClose, token, refreshMaterials }) => {
   useEffect(() => {
     // Pobierz wszystkie właściwości dla materiału
     axios
-      .get(`http://localhost:3001/api/materials/${material.id}/properties`, {
+      .get(`/api/materials/${material.id}/properties`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -33,7 +33,7 @@ const MaterialModal = ({ material, onClose, token, refreshMaterials }) => {
     // Zapisz zaktualizowane właściwości
     axios
       .post(
-        `http://localhost:3001/api/materials/${material.id}/properties`,
+        `/api/materials/${material.id}/properties`,
         propertyValues,
         {
           headers: {

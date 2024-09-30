@@ -23,7 +23,7 @@ const InteractiveSearch = () => {
   // Fetch filtered materials from the server
   useEffect(() => {
     if (Object.keys(filters).length > 0) {
-      axios.get(`http://localhost:3001/api/filter`, { params: { filters: JSON.stringify(filters) } })
+      axios.get(`/api/filter`, { params: { filters: JSON.stringify(filters) } })
         .then(res => {
           setMaterials(res.data.filteredMaterials);
           setSuggestions(res.data.suggestions);

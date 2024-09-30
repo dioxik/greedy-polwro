@@ -20,7 +20,7 @@ function App() {
   const handleLogout = () => {
     axios
       .post(
-        'http://localhost:3001/logout',
+        '/logout',
         {},
         {
           headers: {
@@ -46,7 +46,7 @@ function App() {
             <div className="logo">Material Search App</div>
             <nav className="menu">
               <ul>
-                {token ? (
+                {token != null ? (
                   <>
                     <li>
                       <Link to="/admin">

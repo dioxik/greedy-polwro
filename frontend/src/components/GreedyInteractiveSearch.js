@@ -24,7 +24,7 @@ function GreedyInteractiveSearch() {
 
     try {
       // Call the API with updated filters
-      const response = await axios.get('http://localhost:3001/api/filter', {
+      const response = await axios.get('/api/filter', {
         params: { filters: JSON.stringify(updatedAnswers) },
       });
 

@@ -7,7 +7,7 @@ const PropertyPriorityAdmin = () => {
 
   // Fetch properties and their priorities
   useEffect(() => {
-    axios.get('http://localhost:3001/api/properties').then((response) => {
+    axios.get('/api/properties').then((response) => {
       setProperties(response.data);
 
       // Initialize priorities with the current values (assuming backend returns them)
@@ -29,7 +29,7 @@ const PropertyPriorityAdmin = () => {
   const handleSave = () => {
     // Send updated priorities to the backend
     axios
-      .post('http://localhost:3001/api/properties/priorities', priorities)
+      .post('/api/properties/priorities', priorities)
       .then(() => {
         alert('Priorities updated successfully');
       })
