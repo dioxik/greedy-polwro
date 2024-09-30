@@ -2,15 +2,35 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
-import GreedyAlgorithm from './components/InteractiveFilter';
+import InteractiveFilter from './components/InteractiveFilter';
 import Login from './components/Login';
 import AdminPanel from './components/AdminPanel';
-import PropertyPriorityAdmin from './components/PropertyPriorityAdmin';
 import axios from 'axios';
-import InteractiveFilter from './components/InteractiveFilter';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('authToken') || null);
+  const [isLoading, setIsLoading] = useState(true); // Dodaj stan ładowania
+
+  useEffect(() => {
+    // Sprawdź token przy uruchomieniu
+    const validateToken = async () => {
+      if (token) {
+        try {
+          await axios.get('/api/validate_token', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        } catch (error) {
+          console.error('Invalid token:', error);
+          handleLogout(); // Wyloguj, jeśli token jest nieprawidłowy
+        }
+      }
+      setIsLoading(false); // Zakończ ładowanie po sprawdzeniu tokenu
+    };
+
+    validateToken();
+  }, []);
 
   const handleLogin = (authToken) => {
     setToken(authToken);
@@ -18,73 +38,49 @@ function App() {
   };
 
   const handleLogout = () => {
-    axios
-      .post(
-        '/logout',
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then(() => {
-        setToken(null);
-        localStorage.removeItem('authToken');
-        alert('Logged out successfully');
-      })
-      .catch((error) => {
-        console.error('Logout error:', error);
-      });
+    setToken(null);
+    localStorage.removeItem('authToken');
+    alert('Logged out successfully');
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Wyświetl komunikat ładowania
+  }
 
   return (
     <Router>
       <div className="App">
         <header className="App-header">
-          <div className="navbar">
-            <div className="logo">Material Search App</div>
-            <nav className="menu">
-              <ul>
-                {token != null ? (
-                  <>
-                    <li>
-                      <Link to="/admin">
-                        <i className="fas fa-cogs"></i> Admin Panel
-                      </Link>
-                    </li>
-                    <li>
-                      <button onClick={handleLogout}>
-                        <i className="fas fa-sign-out-alt"></i> Logout
-                      </button>
-                    </li>
-                  </>
-                ) : (
-                  <>
-                    <li>
-                      <Link to="/login">
-                        <i className="fas fa-sign-in-alt"></i> Login
-                      </Link>
-                    </li>
-                  </>
-                )}
+          <nav className="navbar">
+            <div className="logo">
+              <Link to="/">Material Search App</Link>
+            </div>
+            <ul className="menu">
+              {token ? (
+                <>
+                  <li>
+                    <Link to="/admin">Admin Panel</Link>
+                  </li>
+                  <li>
+                    <button onClick={handleLogout}>Logout</button>
+                  </li>
+                </>
+              ) : (
                 <li>
-                  <a href="#about">
-                    <i className="fas fa-info-circle"></i> About
-                  </a>
+                  <Link to="/login">Login</Link>
                 </li>
-              </ul>
-            </nav>
-          </div>
+              )}
+            </ul>
+          </nav>
         </header>
         <main>
           <Routes>
             <Route path="/" element={<InteractiveFilter />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            {token && (
-              <Route path="/admin" element={<AdminPanel token={token} />} />
-            )}
-            {/* Add other protected routes here */}
+            <Route
+              path="/admin"
+              element={token ? <AdminPanel token={token} /> : <Login onLogin={handleLogin} />}
+            />
           </Routes>
         </main>
         <footer>

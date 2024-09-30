@@ -23,6 +23,65 @@ const db = knex({
   useNullAsDefault: true,
 });
 
+// Funkcja do tworzenia tabeli material_property_ranges_table i triggerów
+async function createMaterialPropertyRangesTable() {
+  try {
+    await db.raw(`
+      -- Utwórz tabelę, jeśli nie istnieje
+      CREATE TABLE IF NOT EXISTS material_property_ranges_table AS
+      SELECT * FROM material_property_ranges;
+
+      -- Utwórz trigger, który będzie aktualizował tabelę po INSERT do material_properties
+      CREATE TRIGGER IF NOT EXISTS update_ranges_after_insert
+      AFTER INSERT ON material_properties
+      BEGIN
+        -- Usuń stare zakresy dla danego materiału i właściwości
+        DELETE FROM material_property_ranges_table
+        WHERE material_id = NEW.material_id AND property_id = NEW.property_id;
+
+        -- Dodaj nowe zakresy dla danego materiału i właściwości
+        INSERT INTO material_property_ranges_table
+        SELECT * FROM material_property_ranges
+        WHERE material_id = NEW.material_id AND property_id = NEW.property_id;
+      END;
+
+      -- Utwórz trigger, który będzie aktualizował tabelę po UPDATE do material_properties
+      CREATE TRIGGER IF NOT EXISTS update_ranges_after_update
+      AFTER UPDATE ON material_properties
+      BEGIN
+        -- Usuń stare zakresy dla danego materiału i właściwości
+        DELETE FROM material_property_ranges_table
+        WHERE material_id = NEW.material_id AND property_id = NEW.property_id;
+
+        -- Dodaj nowe zakresy dla danego materiału i właściwości
+        INSERT INTO material_property_ranges_table
+        SELECT * FROM material_property_ranges
+        WHERE material_id = NEW.material_id AND property_id = NEW.property_id;
+      END;
+
+      -- Utwórz trigger, który będzie aktualizował tabelę po DELETE do material_properties
+      CREATE TRIGGER IF NOT EXISTS update_ranges_after_delete
+      AFTER DELETE ON material_properties
+      BEGIN
+        -- Usuń stare zakresy dla danego materiału i właściwości
+        DELETE FROM material_property_ranges_table
+        WHERE material_id = OLD.material_id AND property_id = OLD.property_id;
+
+        -- Dodaj nowe zakresy dla danego materiału i właściwości (jeśli istnieją)
+        INSERT INTO material_property_ranges_table
+        SELECT * FROM material_property_ranges
+        WHERE material_id = OLD.material_id AND property_id = OLD.property_id;
+      END;
+    `);
+    console.log('Tabela material_property_ranges_table i triggery utworzone.');
+  } catch (error) {
+    console.error('Błąd podczas tworzenia tabeli i triggerów:', error);
+  }
+}
+
+// Wywołaj funkcję po uruchomieniu aplikacji
+createMaterialPropertyRangesTable();
+
 // Endpoint to get distinct property values
 app.get('/api/property-values', async (req, res) => {
   const { property_name } = req.query;
@@ -37,40 +96,14 @@ app.get('/api/property-values', async (req, res) => {
     if (!property) {
       return res.status(404).json({ error: 'Property not found' });
     }
-    const propertyValues = await db.raw(`
-      WITH RECURSIVE RangeSeries(id, material_id, property_id, property_value) AS (
-        -- Pobierz dolną granicę zakresu i zaokrąglij do 2 miejsc po przecinku
-        SELECT id, material_id, property_id,
-               ROUND(CAST(REPLACE(substr(property_value, 1, instr(property_value, '÷') - 1), ',', '.') AS REAL), 2) AS property_value
-        FROM material_properties
-        WHERE property_id = ? AND instr(property_value, '÷') > 0
-        
-        UNION ALL
-        
-        -- Dodawaj 0.01 i zaokrąglij do 2 miejsc po przecinku
-        SELECT id, material_id, property_id, ROUND(property_value + 0.01, 2)
-        FROM RangeSeries
-        WHERE property_value + 0.01 <= (
-          SELECT ROUND(CAST(REPLACE(substr(property_value, instr(property_value, '÷') + 1), ',', '.') AS REAL), 2)
-          FROM material_properties
-          WHERE property_id = ? AND instr(property_value, '÷') > 0
-        )
-      )
-      -- Wybierz wszystkie wygenerowane wartości z zakresów i zaokrąglij do 2 miejsc po przecinku
-      SELECT id, material_id, property_id, ROUND(property_value, 2) AS property_value FROM RangeSeries
-    
-      UNION
-    
-      -- Wybierz oryginalne wartości, które nie są zakresami i zaokrąglij do 2 miejsc po przecinku
-      SELECT id, material_id, property_id,
-             ROUND(CAST(REPLACE(property_value, ',', '.') AS REAL), 2) AS property_value
-      FROM material_properties
-      WHERE property_id = ? AND instr(property_value, '÷') = 0
-    `, [property.id, property.id, property.id]);
-    
-    
-  
-  
+
+    // Use the material_property_ranges_table to get distinct values
+    const propertyValues = await db('material_property_ranges_table')
+      .select('property_value')
+      .where({ property_id: property.id })
+      .distinct()
+      .orderBy('property_value');
+
     res.json(propertyValues);
   } catch (error) {
     console.error('Error fetching property values:', error);
@@ -106,8 +139,6 @@ app.post('/api/properties/priorities', async (req, res) => {
   }
 });
 
-// server.js or app.js
-
 // Dynamic filtering based on user input with operators
 app.get('/api/filter', async (req, res) => {
   const { filters } = req.query;
@@ -124,59 +155,86 @@ app.get('/api/filter', async (req, res) => {
       return res.status(400).json({ error: 'Invalid filters format. Expected an array.' });
     }
 
-    // Start the base query
-    let query = `
-      SELECT DISTINCT m.id, m.name, c.category_name, t.type_name
-      FROM materials m
-      JOIN categories c ON m.category_id = c.id
-      JOIN types t ON m.type_id = t.id
-      JOIN material_properties mp ON mp.material_id = m.id
-      JOIN properties_dictionary p ON mp.property_id = p.id
-      WHERE 1 = 1
-    `;
+    const { filteredMaterials, suggestions } = await applyFiltersAndSuggestions(parsedFilters);
 
-    const queryParams = [];
-
-    // Dynamically add filters to query with comparison operators
-    parsedFilters.forEach((filter) => {
-      let operator = '=';
-      
-      // Set operator based on the filter's operator field
-      switch (filter.operator) {
-        case 'lessThanOrEqual':
-          operator = '<=';
-          break;
-        case 'equal':
-          operator = '=';
-          break;
-        case 'greaterThanOrEqual':
-          operator = '>=';
-          break;
-        default:
-          operator = '='; // Default is 'equal' if not specified
-      }
-
-      query += `
-        AND m.id IN (
-          SELECT material_id FROM material_properties
-          WHERE property_id = (
-            SELECT id FROM properties_dictionary WHERE property_name = ?
-          )
-          AND property_value ${operator} ?
-        )
-      `;
-      queryParams.push(filter.property, filter.value);
-    });
-
-    // Execute the dynamic query
-    const results = await db.raw(query, queryParams);
-    res.json({ filteredMaterials: results });
+    res.json({ filteredMaterials, suggestions });
   } catch (error) {
     console.error('Error during filtering:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
+async function applyFiltersAndSuggestions(filters) {
+  let query = `
+    SELECT DISTINCT m.id, m.name, c.category_name, t.type_name
+    FROM materials m
+    JOIN categories c ON m.category_id = c.id
+    JOIN types t ON m.type_id = t.id
+    JOIN material_property_ranges_table mp ON mp.material_id = m.id
+    JOIN properties_dictionary p ON mp.property_id = p.id
+    WHERE 1 = 1
+  `;
+
+  const queryParams = [];
+  filters.forEach((filter, index) => {
+    let operator = '=';
+    switch (filter.operator) {
+      case 'lessThanOrEqual':
+        operator = '<=';
+        break;
+      case 'equal':
+        operator = '=';
+        break;
+      case 'greaterThanOrEqual':
+        operator = '>=';
+        break;
+      default:
+        operator = '=';
+    }
+
+    query += `
+      AND m.id IN (
+        SELECT material_id FROM material_property_ranges_table
+        WHERE property_id = (
+          SELECT id FROM properties_dictionary WHERE property_name = ?
+        )
+        AND CAST(REPLACE(property_value, ',', '.') AS REAL) ${operator} ?
+      )
+    `;
+    queryParams.push(filter.property, filter.value);
+  });
+
+  // Execute the dynamic query
+ // const compiledQuery = db.raw(query, queryParams).toSQL(); // Zbuduj zapytanie z parametrami
+ // console.log(compiledQuery.toString()); // Wyświetl pełne zapytanie w konsoli
+  const filteredMaterials = await db.raw(query, queryParams);
+
+  // If no exact matches, provide suggestions
+  let suggestions = [];
+  if (filteredMaterials.length === 0 && filters.length > 0) {
+    const lastFilter = filters[filters.length - 1];
+    const relaxedFilters = filters.slice(0, -1);
+
+    // Relax the last filter if it's numeric
+    if (!isNaN(lastFilter.value)) {
+      const numericValue = parseFloat(lastFilter.value);
+      const relaxedValue =
+        lastFilter.operator === 'lessThanOrEqual'
+          ? numericValue + 5
+          : lastFilter.operator === 'greaterThanOrEqual'
+          ? numericValue - 5
+          : numericValue; // For 'equal', just use the same value
+
+      const { suggestions: relaxedSuggestions } = await applyFiltersAndSuggestions([
+        ...relaxedFilters,
+        { ...lastFilter, value: relaxedValue },
+      ]);
+      suggestions = relaxedSuggestions;
+    }
+  }
+
+  return { filteredMaterials, suggestions };
+}
 
 // Route for user login
 app.post('/login', async (req, res) => {
@@ -281,36 +339,33 @@ app.post('/api/materials/:id/properties', authenticate, async (req, res) => {
   const properties = req.body; // Zawiera obiekt z parami { property_name: property_value }
 
   try {
-    for (const [propertyName, propertyValue] of Object.entries(properties)) {
-      // Znajdź ID właściwości na podstawie nazwy
-      const property = await db('properties_dictionary')
-        .select('id')
-        .where({ property_name: propertyName })
-        .first();
-
-      if (!property) {
-        return res.status(404).json({ error: `Property ${propertyName} not found` });
-      }
-
+    for (const { id: propertyId, value: propertyValue } of properties) {
       // Sprawdź, czy materiał ma już przypisaną tę właściwość
       const existingProperty = await db('material_properties')
-        .where({ material_id: materialId, property_id: property.id })
+        .where({ material_id: materialId, property_id: propertyId })
         .first();
 
       if (existingProperty) {
         // Wykonaj UPDATE, jeśli właściwość istnieje
         await db('material_properties')
-          .where({ material_id: materialId, property_id: property.id })
+          .where({ material_id: materialId, property_id: propertyId })
           .update({ property_value: propertyValue });
       } else {
         // Wykonaj INSERT, jeśli właściwość nie istnieje
         await db('material_properties').insert({
           material_id: materialId,
-          property_id: property.id,
+          property_id: propertyId,
           property_value: propertyValue,
         });
       }
     }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating or inserting material properties:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Delete material by ID
 app.delete('/api/materials/:id', authenticate, async (req, res) => {
@@ -329,12 +384,23 @@ app.delete('/api/materials/:id', authenticate, async (req, res) => {
 app.post('/api/materials', authenticate, async (req, res) => {
   const { name, category, type } = req.body;
   try {
-    await db('materials').insert({
+    const [newMaterialId] = await db('materials').insert({
       name,
       category_id: await getCategoryID(category),
       type_id: await getTypeID(type),
     });
-    res.json({ success: true });
+
+    // Wywołaj trigger
+    try {
+      await db.raw(`
+        INSERT INTO material_properties (material_id, property_id, property_value)
+        VALUES (?, ?, ?);
+      `, [newMaterialId, propertyId, propertyValue]);
+    } catch (error) {
+      console.error('Błąd podczas wywoływania triggera:', error);
+    }
+
+    res.json({ success: true, id: newMaterialId });
   } catch (error) {
     console.error('Error adding material:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -351,38 +417,6 @@ async function getTypeID(typeName) {
   const type = await db('types').where({ type_name: typeName }).first();
   return type ? type.id : null;
 }
-
-
-
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error updating or inserting material properties:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Start the server
 const PORT = process.env.PORT || 3001;

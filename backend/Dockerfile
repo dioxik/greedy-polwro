@@ -1,23 +1,20 @@
-# Use the official Python image from the Docker Hub
-FROM python:3.9-slim
+# Bazowy obraz Node.js
+FROM node:16
 
-# Set environment variable to avoid buffering
-ENV PYTHONUNBUFFERED 1
-
-# Set the working directory in the container
+# Ustaw katalog roboczy
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements.txt /app/
+# Skopiuj package.json i package-lock.json
+COPY package*.json ./
 
-# Install the dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Zainstaluj zależności
+RUN npm install
 
-# Copy the rest of the application code into the container
-COPY . /app/
+# Skopiuj resztę plików aplikacji
+COPY . .
 
-# Expose port 5000 to the outside world
-EXPOSE 5000
+# Ustaw zmienną środowiskową dla portu
+ENV PORT 3001
 
-# Command to run the application
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+# Uruchom aplikację
+CMD ["npm", "build"]

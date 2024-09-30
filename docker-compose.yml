@@ -1,38 +1,26 @@
 version: '3.8'
 
 services:
-
-
-
   backend:
-    build:
-      context: ./backend
+    build: ./backend
+    ports:
+      - "3001:3001"
     volumes:
       - ./backend:/app
-    #command: sh -c "npm install && npx sequelize-cli db:migrate && npm start"
-    ports:
-      - "5000:5000"
+      - ./data:/data # Udostępnij katalog danych dla backendu
     environment:
-      FLASK_ENV: development
-      FLASK_APP: app.py
+      - DATABASE_URL=sqlite:///data/mydatabase.db # Zdefiniuj URL bazy danych
+    command: sh -c "npm install && npm start" # Uruchom backend
 
   frontend:
- #   image: greedy-polwro-frontend
-    build: 
-      context: ./frontend
-      dockerfile: Dockerfile
-    
-    command: sh -c "npm install && npx sequelize-cli db:migrate && npm start"
+    build: ./frontend
     ports:
       - "3000:3000"
-
     environment:
-      - CHOKIDAR_USEPOLLING=true  # Dodatkowe ustawienie dla systemów Windows
-      - NODE_OPTIONS=--openssl-legacy-provider
-  db:
-    build:
-      context: ./data
-      dockerfile: Dockerfile
-    volumes:
-      - ./data:/data
-    command: sqlite3 /data/mydatabase.db < /docker-entrypoint-initdb.d/init_db.sql
+      - REACT_APP_API_URL=http://backend:3001 # Adres API backendu
+      - CHOKIDAR_USEPOLLING=true # Dla systemów Windows
+      #- NODE_OPTIONS=--openssl-legacy-provider
+    command: sh -c "npm start" # Uruchom frontend
+
+volumes:
+  data: # Zdefiniuj wolumen dla danych

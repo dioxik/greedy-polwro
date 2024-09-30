@@ -1,25 +1,21 @@
-# Użyj oficjalnego obrazu Node.js
-FROM node:alpine
+# Bazowy obraz Node.js
+FROM node:16
 
-RUN apk add --no-cache sqlite sqlite-dev
-
-# Ustaw zmienną środowiskową
-ENV NODE_OPTIONS=--openssl-legacy-provider
-
-# Ustaw katalog roboczy w kontenerze
+# Ustaw katalog roboczy
 WORKDIR /app
 
-# Skopiuj pliki aplikacji do kontenera
-COPY . .
+# Skopiuj package.json i package-lock.json
+COPY package*.json ./
 
-# Instalacja zależności
+# Zainstaluj zależności
 RUN npm install
 
-# Uruchomienie migracji bazy danych podczas budowania obrazu
-RUN npx sequelize-cli db:migrate
+# Skopiuj resztę plików aplikacji
+COPY . .
 
-# Port, na którym działa aplikacja
-EXPOSE 3000
+# Zbuduj aplikację React
+RUN npm run build
 
-# Komenda uruchamiająca aplikację
-CMD ["npm", "start"]
+
+# Ustaw zmienną środowiskową dla portu
+ENV PORT 3000

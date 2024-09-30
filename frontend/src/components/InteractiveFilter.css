@@ -1,0 +1,16 @@
+.interactive-filter {
+    /* Stylizacja głównego kontenera */
+  }
+  
+  .property-list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .property-item {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
