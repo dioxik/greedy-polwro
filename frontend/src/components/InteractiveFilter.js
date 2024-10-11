@@ -19,6 +19,30 @@ const InteractiveFilter = () => {
 
   const timeoutRef = useRef(null); // Ref do przechowywania ID timeoutu
 
+  const fetchPropertyValues = (propertyName) => {
+    if (!propertyValues[propertyName]) {
+      axios.get('/api/property-values', { params: { property_name: propertyName } })
+        .then((response) => {
+          // Calculate min and max values for slider
+          const values = response.data.map(item => parseFloat(item.property_value));
+          const min = Math.min(...values);
+          const max = Math.max(...values);
+
+          setPropertyValues((prevValues) => ({
+            ...prevValues,
+            [propertyName]: {
+              values: response.data,
+              min: min,
+              max: max,
+            },
+          }));
+        })
+        .catch((error) => {
+          console.error('Error fetching property values:', error);
+        });
+    }
+  };
+
   useEffect(() => {
     axios.get('/api/properties')
       .then((response) => {
@@ -38,22 +62,7 @@ const InteractiveFilter = () => {
     visibleProperties.forEach(property => {
       fetchPropertyValues(property.property_name);
     });
-  }, [visibleProperties, fetchPropertyValues]); // Dodano fetchPropertyValues do zależności
-
-  const fetchPropertyValues = (propertyName) => {
-    if (!propertyValues[propertyName]) {
-      axios.get('/api/property-values', { params: { property_name: propertyName } })
-        .then((response) => {
-          setPropertyValues((prevValues) => ({
-            ...prevValues,
-            [propertyName]: response.data,
-          }));
-        })
-        .catch((error) => {
-          console.error('Error fetching property values:', error);
-        });
-    }
-  };
+  }, [visibleProperties, fetchPropertyValues]);
 
   const handleOperatorChange = (property, operator) => {
     setOperators((prevOperators) => ({
@@ -240,7 +249,7 @@ const InteractiveFilter = () => {
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, [countdown, isSliderActive, fetchPropertyValues]); // Dodano fetchPropertyValues do zależności
+  }, [countdown, isSliderActive, fetchPropertyValues]);
 
   return (
     <div className="interactive-filter">
@@ -287,12 +296,12 @@ const InteractiveFilter = () => {
 
             {propertyValues[property.property_name] ? (
               <div>
-                {propertyValues[property.property_name].length > 10 ? (
+                {propertyValues[property.property_name].values.length > 10 ? (
                   <div className="slider-container">
                     <input
                       type="range"
-                      min={Math.min(...propertyValues[property.property_name].map((value) => parseFloat(value.property_value)))}
-                      max={Math.max(...propertyValues[property.property_name].map((value) => parseFloat(value.property_value)))}
+                      min={propertyValues[property.property_name].min}
+                      max={propertyValues[property.property_name].max}
                       step={0.01}
                       onChange={(e) => handleSliderChange(property.property_name, e)}
                       onMouseDown={() => setIsSliderActive((prev) => ({ ...prev, [property.property_name]: true }))}
@@ -302,7 +311,7 @@ const InteractiveFilter = () => {
                     <span className="slider-value">{sliderValues[property.property_name]}</span> {/* Wyświetl wartość suwaka */}
                   </div>
                 ) : (
-                  propertyValues[property.property_name].map((value, index) => (
+                  propertyValues[property.property_name].values.map((value, index) => (
                     <button
                       key={index}
                       onClick={() => handleFilterChange(property.property_name, value.property_value)}

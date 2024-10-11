@@ -28,8 +28,8 @@ async function createMaterialPropertyRangesTable() {
   try {
     await db.raw(`
       -- Utwórz tabelę, jeśli nie istnieje
-      CREATE TABLE IF NOT EXISTS material_property_ranges_table AS
-      SELECT * FROM material_property_ranges;
+      --CREATE TABLE IF NOT EXISTS material_property_ranges_table AS
+      --SELECT * FROM material_property_ranges;
 
       -- Utwórz trigger, który będzie aktualizował tabelę po INSERT do material_properties
       CREATE TRIGGER IF NOT EXISTS update_ranges_after_insert
@@ -80,7 +80,7 @@ async function createMaterialPropertyRangesTable() {
 }
 
 // Wywołaj funkcję po uruchomieniu aplikacji
-createMaterialPropertyRangesTable();
+// createMaterialPropertyRangesTable();
 
 // Endpoint to get distinct property values
 app.get('/api/property-values', async (req, res) => {
