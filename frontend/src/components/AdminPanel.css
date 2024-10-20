@@ -69,6 +69,13 @@
 .materials-section .delete-button:hover {
   background-color: #c82333;
 }
+.materials-section .edit-button {
+  background-color: #0066ff;
+}
+
+.materials-section .edit-button:hover {
+  background-color: #0066ff;
+}
 
 .properties-section h3 {
   margin-top: 20px;
@@ -128,7 +135,7 @@
 .close-button {
   position: relative;
   top: -10px;
-  left: 360px;
+  left: 60px;
   background-color: transparent;
   border: none;
   font-size: 20px;

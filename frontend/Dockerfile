@@ -1,5 +1,5 @@
 # Bazowy obraz Node.js
-FROM node:16
+FROM node:slim
 
 # Ustaw katalog roboczy
 WORKDIR /app
@@ -16,6 +16,17 @@ COPY . .
 # Zbuduj aplikację React
 RUN npm run build
 
+# Zainstaluj serwer do obsługi statycznych plików
+RUN npm install -g serve
 
 # Ustaw zmienną środowiskową dla portu
-ENV PORT 3000
+ENV PORT=3000
+
+# Eksponuj port aplikacji
+EXPOSE 3000
+
+# Dodaj etykietę z nazwą obrazu
+LABEL image_name="polwro-frontend"
+
+# Uruchom serwer do obsługi statycznych plików
+CMD ["serve", "-s", "build", "-l", "3000"]

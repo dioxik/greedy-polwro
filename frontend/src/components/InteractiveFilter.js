@@ -21,6 +21,7 @@ const InteractiveFilter = () => {
 
   const fetchPropertyValues = (propertyName) => {
     if (!propertyValues[propertyName]) {
+      setIsLoading(true); // Ustaw stan ładowania na true
       axios.get('/api/property-values', { params: { property_name: propertyName } })
         .then((response) => {
           // Calculate min and max values for slider
@@ -36,9 +37,11 @@ const InteractiveFilter = () => {
               max: max,
             },
           }));
+          setIsLoading(false); // Ustaw stan ładowania na false po zakończeniu żądania
         })
         .catch((error) => {
           console.error('Error fetching property values:', error);
+          setIsLoading(false); // Ustaw stan ładowania na false w przypadku błędu
         });
     }
   };

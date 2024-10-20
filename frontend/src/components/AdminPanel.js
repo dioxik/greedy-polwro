@@ -101,7 +101,10 @@ const AdminPanel = () => {
       await axios.post(`http://localhost:3001/api/materials/${selectedMaterial.id}/properties`, updatedProperties, {
         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
       });
+      
+      // Zamknij popup po zapisaniu
       setShowMaterialPopup(false);
+
       fetchMaterials();
     } catch (error) {
       console.error('Error saving material properties', error);
@@ -150,10 +153,8 @@ const AdminPanel = () => {
               {materials.map((material) => (
                 <li key={material.id}>
                   {material.name} - {material.category_name} - {material.type_name}
-                  <button onClick={() => handleEditMaterial(material)}>Edit</button>
-                  <button onClick={() => handleDeleteMaterial(material.id)} className="delete-button">
-                    Delete
-                  </button>
+                  <button onClick={() => handleEditMaterial(material)} className="edit-button">Edit</button>
+                  <button onClick={() => handleDeleteMaterial(material.id)} className="delete-button">Delete</button>
                 </li>
               ))}
             </ul>
@@ -202,11 +203,14 @@ const AdminPanel = () => {
       {/* Popup do edycji materiału */}
       {showMaterialPopup && selectedMaterial && (
         <div className="material-popup">
-          <div className="popup-content material-popup-content"> {/* Dodano klasę material-popup-content */}
+          <div className="popup-content material-popup-content"> 
             <h3>Edit Material: {selectedMaterial.name}</h3>
+
+            {/* Guzik zamknięcia popupu */}
             <button className="close-button" onClick={() => setShowMaterialPopup(false)}>
               &times;
             </button>
+
             <div className="property-list">
               {materialProperties.map((property) => (
                 <div key={property.property_id} className="property-item">

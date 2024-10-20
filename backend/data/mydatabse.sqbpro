@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/media/diox/Data Drive/develop/greedy-polwro/data/mydatabse.db" readonly="0" foreign_keys="" case_sensitive_like="" temp_store="" wal_autocheckpoint="" synchronous=""/><attached/><window><main_tabs open="structure browser pragmas query" current="1"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1170"/><column_width id="4" width="0"/></tab_structure><tab_browse><current_table name="0,0:"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1">-- Wstawianie atrybutów dla ASA
+INSERT INTO attributes (material_id, attribute_name, value) VALUES
+((SELECT id FROM materials WHERE name = 'ASA'), 'Bezpieczeństwo użytkownika', 6),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Gęstość [g/cm3]', 5),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Temperatura zeszklenia [°C]', 6),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Współczynnik liniowej rozszerzalności Cieplnej [1/°C]', 4),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Absorpcja wilgoci [%]', 4),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Skurcz Przetwórczy [%]', 5),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Wydłużenie Przy Zerwaniu [%]', 6),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Wydłużenie Na Gr. Plastyczności [%]', 5),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Elastyczność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Twardość Shore’a [ShD]', 6),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Sztywność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Naprężenie Przy Zerwaniu [MPa]', 6),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Naprężenie Na Gr. Plastyczności [MPa]', 6),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Udarność [J]', 6),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Moduł Younga [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Wytrzymałość na rozciąganie [Mpa]', 6),
+((SELECT id FROM materials WHERE name = 'ASA'), 'Granica plastyczności [Mpa]', 5);
+
+-- Wstawianie atrybutów dla PLA
+INSERT INTO attributes (material_id, attribute_name, value) VALUES
+((SELECT id FROM materials WHERE name = 'PLA'), 'Bezpieczeństwo użytkownika', 5),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Gęstość [g/cm3]', 6),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Temperatura zeszklenia [°C]', 7),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Współczynnik liniowej rozszerzalności Cieplnej [1/°C]', 6),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Absorpcja wilgoci [%]', 4),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Skurcz Przetwórczy [%]', 6),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Wydłużenie Przy Zerwaniu [%]', 7),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Wydłużenie Na Gr. Plastyczności [%]', 7),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Elastyczność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Twardość Shore’a [ShD]', 5),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Sztywność [GPa]', 6),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Naprężenie Przy Zerwaniu [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Naprężenie Na Gr. Plastyczności [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Udarność [J]', 7),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Moduł Younga [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Wytrzymałość na rozciąganie [Mpa]', 6),
+((SELECT id FROM materials WHERE name = 'PLA'), 'Granica plastyczności [Mpa]', 6);
+
+-- Wstawianie atrybutów dla BVOH
+INSERT INTO attributes (material_id, attribute_name, value) VALUES
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Bezpieczeństwo użytkownika', 3),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Gęstość [g/cm3]', 6),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Temperatura zeszklenia [°C]', 6),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Współczynnik liniowej rozszerzalności Cieplnej [1/°C]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Absorpcja wilgoci [%]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Skurcz Przetwórczy [%]', 6),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Wydłużenie Przy Zerwaniu [%]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Wydłużenie Na Gr. Plastyczności [%]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Elastyczność [GPa]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Twardość Shore’a [ShD]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Sztywność [GPa]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Naprężenie Przy Zerwaniu [MPa]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Naprężenie Na Gr. Plastyczności [MPa]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Udarność [J]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Moduł Younga [GPa]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Wytrzymałość na rozciąganie [Mpa]', 4),
+((SELECT id FROM materials WHERE name = 'BVOH'), 'Granica plastyczności [Mpa]', 4);
+
+-- Wstawianie atrybutów dla HIPS
+INSERT INTO attributes (material_id, attribute_name, value) VALUES
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Bezpieczeństwo użytkownika', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Gęstość [g/cm3]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Temperatura zeszklenia [°C]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Współczynnik liniowej rozszerzalności Cieplnej [1/°C]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Absorpcja wilgoci [%]', 5),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Skurcz Przetwórczy [%]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Wydłużenie Przy Zerwaniu [%]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Wydłużenie Na Gr. Plastyczności [%]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Elastyczność [GPa]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Twardość Shore’a [ShD]', 4),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Sztywność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Naprężenie Przy Zerwaniu [MPa]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Naprężenie Na Gr. Plastyczności [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Udarność [J]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Moduł Younga [GPa]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Wytrzymałość na rozciąganie [Mpa]', 6),
+((SELECT id FROM materials WHERE name = 'HIPS'), 'Granica plastyczności [Mpa]', 6);
+
+-- Wstawianie atrybutów dla PC
+INSERT INTO attributes (material_id, attribute_name, value) VALUES
+((SELECT id FROM materials WHERE name = 'PC'), 'Bezpieczeństwo użytkownika', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Gęstość [g/cm3]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Temperatura zeszklenia [°C]', 8),
+((SELECT id FROM materials WHERE name = 'PC'), 'Współczynnik liniowej rozszerzalności Cieplnej [1/°C]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Absorpcja wilgoci [%]', 4),
+((SELECT id FROM materials WHERE name = 'PC'), 'Skurcz Przetwórczy [%]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Wydłużenie Przy Zerwaniu [%]', 6),
+((SELECT id FROM materials WHERE name = 'PC'), 'Wydłużenie Na Gr. Plastyczności [%]', 6),
+((SELECT id FROM materials WHERE name = 'PC'), 'Elastyczność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Twardość Shore’a [ShD]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Sztywność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Naprężenie Przy Zerwaniu [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Naprężenie Na Gr. Plastyczności [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Udarność [J]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Moduł Younga [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Wytrzymałość na rozciąganie [Mpa]', 5),
+((SELECT id FROM materials WHERE name = 'PC'), 'Granica plastyczności [Mpa]', 5);
+
+-- Wstawianie atrybutów dla PC-ABS
+INSERT INTO attributes (material_id, attribute_name, value) VALUES
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Bezpieczeństwo użytkownika', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Gęstość [g/cm3]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Temperatura zeszklenia [°C]', 7),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Współczynnik liniowej rozszerzalności Cieplnej [1/°C]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Absorpcja wilgoci [%]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Skurcz Przetwórczy [%]', 6),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Wydłużenie Przy Zerwaniu [%]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Wydłużenie Na Gr. Plastyczności [%]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Elastyczność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Twardość Shore’a [ShD]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Sztywność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Naprężenie Przy Zerwaniu [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Naprężenie Na Gr. Plastyczności [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Udarność [J]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Moduł Younga [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Wytrzymałość na rozciąganie [Mpa]', 5),
+((SELECT id FROM materials WHERE name = 'PC-ABS'), 'Granica plastyczności [Mpa]', 5);
+
+-- Wstawianie atrybutów dla PEI
+INSERT INTO attributes (material_id, attribute_name, value) VALUES
+((SELECT id FROM materials WHERE name = 'PEI'), 'Bezpieczeństwo użytkownika', 5),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Gęstość [g/cm3]', 5),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Temperatura zeszklenia [°C]', 9),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Współczynnik liniowej rozszerzalności Cieplnej [1/°C]', 6),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Absorpcja wilgoci [%]', 4),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Skurcz Przetwórczy [%]', 6),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Wydłużenie Przy Zerwaniu [%]', 5),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Wydłużenie Na Gr. Plastyczności [%]', 5),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Elastyczność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Twardość Shore’a [ShD]', 6),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Sztywność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Naprężenie Przy Zerwaniu [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Naprężenie Na Gr. Plastyczności [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Udarność [J]', 5),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Moduł Younga [GPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Wytrzymałość na rozciąganie [Mpa]', 5),
+((SELECT id FROM materials WHERE name = 'PEI'), 'Granica plastyczności [Mpa]', 5);
+
+-- Wstawianie atrybutów dla PEEK
+INSERT INTO attributes (material_id, attribute_name, value) VALUES
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Bezpieczeństwo użytkownika', 5),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Gęstość [g/cm3]', 5),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Temperatura zeszklenia [°C]', 10),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Współczynnik liniowej rozszerzalności Cieplnej [1/°C]', 5),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Absorpcja wilgoci [%]', 4),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Skurcz Przetwórczy [%]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Wydłużenie Przy Zerwaniu [%]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Wydłużenie Na Gr. Plastyczności [%]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Elastyczność [GPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Twardość Shore’a [ShD]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Sztywność [GPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Naprężenie Przy Zerwaniu [MPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Naprężenie Na Gr. Plastyczności [MPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Udarność [J]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Moduł Younga [GPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Wytrzymałość na rozciąganie [Mpa]', 6),
+((SELECT id FROM materials WHERE name = 'PEEK'), 'Granica plastyczności [Mpa]', 6);
+
+-- Wstawianie atrybutów dla PEKK
+INSERT INTO attributes (material_id, attribute_name, value) VALUES
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Bezpieczeństwo użytkownika', 5),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Gęstość [g/cm3]', 5),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Temperatura zeszklenia [°C]', 10),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Współczynnik liniowej rozszerzalności Cieplnej [1/°C]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Absorpcja wilgoci [%]', 4),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Skurcz Przetwórczy [%]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Wydłużenie Przy Zerwaniu [%]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Wydłużenie Na Gr. Plastyczności [%]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Elastyczność [GPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Twardość Shore’a [ShD]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Sztywność [GPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Naprężenie Przy Zerwaniu [MPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Naprężenie Na Gr. Plastyczności [MPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Udarność [J]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Moduł Younga [GPa]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Wytrzymałość na rozciąganie [Mpa]', 6),
+((SELECT id FROM materials WHERE name = 'PEKK'), 'Granica plastyczności [Mpa]', 6);
+
+-- Wstawianie atrybutów dla PPSU
+INSERT INTO attributes (material_id, attribute_name, value) VALUES
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Bezpieczeństwo użytkownika', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Gęstość [g/cm3]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Temperatura zeszklenia [°C]', 8),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Współczynnik liniowej rozszerzalności Cieplnej [1/°C]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Absorpcja wilgoci [%]', 4),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Skurcz Przetwórczy [%]', 6),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Wydłużenie Przy Zerwaniu [%]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Wydłużenie Na Gr. Plastyczności [%]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Elastyczność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Twardość Shore’a [ShD]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Sztywność [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Naprężenie Przy Zerwaniu [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Naprężenie Na Gr. Plastyczności [MPa]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Udarność [J]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Moduł Younga [GPa]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Wytrzymałość na rozciąganie [Mpa]', 5),
+((SELECT id FROM materials WHERE name = 'PPSU'), 'Granica plastyczności [Mpa]', 5);
+</sql><current_tab id="0"/></tab_sql></sqlb_project>

@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   backend:
+    image: polwro-backend:latest
     build: ./backend
     ports:
       - "3001:3001"
@@ -13,6 +14,7 @@ services:
     command: sh -c "npm install && npm start" # Uruchom backend
 
   frontend:
+    image: polwro-frontend:latest
     build: ./frontend
     ports:
       - "3000:3000"

@@ -1,5 +1,5 @@
 # Bazowy obraz Node.js
-FROM node:16
+FROM node:16-slim
 
 # Ustaw katalog roboczy
 WORKDIR /app
@@ -16,5 +16,11 @@ COPY . .
 # Ustaw zmienną środowiskową dla portu
 ENV PORT 3001
 
+# Dodaj etykietę z nazwą obrazu
+LABEL image_name="polwro-backend"
+
+# Eksponuj port aplikacji
+EXPOSE 3001
+
 # Uruchom aplikację
-CMD ["npm", "build"]
+CMD ["npm", "start"]
