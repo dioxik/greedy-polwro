@@ -24,7 +24,7 @@ if (-not $gitInstalled) {
 }
 
 # Sprawdź, czy aplikacja jest już pobrana
-$repoUrl = "https://github.com/yourusername/your-repo.git"
+$repoUrl = "https://github.com/dioxik/greedy-polwro.git"
 $localPath = "$PSScriptRoot\app"
 if (-not (Test-Path $localPath)) {
     Write-Output "Pobieranie aplikacji z GitHub..."
