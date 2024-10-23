@@ -22,6 +22,13 @@
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode
 
+docker_status.py
+docker_status.spec
+
+
 /backend/node_modules
 /frontend/node_modules
 /frontend/build
+/build/docker_status
+/data
+/dist
