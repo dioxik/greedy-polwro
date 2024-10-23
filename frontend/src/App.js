@@ -5,11 +5,13 @@ import './App.css';
 import InteractiveFilter from './components/InteractiveFilter';
 import Login from './components/Login';
 import AdminPanel from './components/AdminPanel';
+import SimilarMaterials from './components/SimilarMaterials'; // Importuj nowy komponent
 import axios from 'axios';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('authToken') || null);
   const [isLoading, setIsLoading] = useState(true); // Dodaj stan ładowania
+  const [filteredMaterials, setFilteredMaterials] = useState([]); // Dodaj stan dla filtrowanych materiałów
 
   useEffect(() => {
     // Sprawdź token przy uruchomieniu

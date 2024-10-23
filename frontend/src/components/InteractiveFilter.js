@@ -77,8 +77,9 @@ const InteractiveFilter = () => {
     resetCountdown(property);
   };
 
-  const handleFilterChange = (property, value) => {
+  const handleFilterChange = (property, value, operator) => {
     const operator = operators[property] || 'equal';
+    setFilters([...filters, { property, value, operator }]);
 
     // Sprawdź, czy filtr dla tej właściwości już istnieje
     const existingFilterIndex = filters.findIndex((filter) => filter.property === property);

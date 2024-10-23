@@ -79,6 +79,19 @@ async function createMaterialPropertyRangesTable() {
   }
 }
 
+
+app.post('/api/similar_materials', async (req, res) => {
+  try {
+    const { materials } = req.body;
+    const similarMaterials = await mydatabase.findSimilarMaterials(materials);
+    res.json(similarMaterials);
+  } catch (error) {
+    console.error('Error fetching similar materials:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 // Wywołaj funkcję po uruchomieniu aplikacji
 // createMaterialPropertyRangesTable();
 
