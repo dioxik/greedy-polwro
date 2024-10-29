@@ -24,7 +24,9 @@
 
 docker_status.py
 docker_status.spec
-
+create_project_structure.py
+generate_files_in_project.py
+backend/data/mydatabse.db
 
 /backend/node_modules
 /frontend/node_modules

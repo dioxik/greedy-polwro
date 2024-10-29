@@ -16,6 +16,41 @@ const InteractiveFilter = () => {
   const [sliderValues, setSliderValues] = useState({}); // Stan dla wartości suwaka
   const [editingFilter, setEditingFilter] = useState(null); // Stan dla edytowanego filtra
   const [isLoading, setIsLoading] = useState(false); // Stan dla informacji o ładowaniu
+// Stan dla rozwiniętych materiałów
+const [expandedMaterials, setExpandedMaterials] = useState({});
+
+
+const toggleMaterialDetails = (materialId) => {
+  // Jeśli materiał jest już rozwinięty, po prostu go zwiń
+  if (expandedMaterials[materialId]) {
+    setExpandedMaterials((prevExpanded) => ({
+      ...prevExpanded,
+      [materialId]: null,
+    }));
+    return; // Zakończ funkcję
+  }
+
+  // Jeśli materiał nie jest rozwinięty, ustaw stan na 'loading' i pobierz dane
+  setExpandedMaterials((prevExpanded) => ({
+    ...prevExpanded,
+    [materialId]: 'loading',
+  }));
+    // Pobierz szczegóły materiału z backendu
+    axios.get(`/api/materials/${materialId}/details`, { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } })
+      .then(response => {
+        setExpandedMaterials((prevExpanded) => ({
+          ...prevExpanded,
+          [materialId]: response.data, // Zaktualizuj stan z danymi materiału
+        }));
+      })
+      .catch(error => {
+        console.error('Error fetching material details:', error);
+        setExpandedMaterials((prevExpanded) => ({
+          ...prevExpanded,
+          [materialId]: null, // Usuń 'loading' w przypadku błędu
+        }));
+      });
+  };
 
   const timeoutRef = useRef(null); // Ref do przechowywania ID timeoutu
 
@@ -77,7 +112,7 @@ const InteractiveFilter = () => {
     resetCountdown(property);
   };
 
-  const handleFilterChange = (property, value, operator) => {
+  const handleFilterChange = (property, value) => {
     const operator = operators[property] || 'equal';
     setFilters([...filters, { property, value, operator }]);
 
@@ -353,13 +388,62 @@ const InteractiveFilter = () => {
         </div>
       )}
 
-      <h3>Filtered Materials: {isLoading && <span className="loading">Updating...</span>}</h3>
+<h3>Filtered Materials: {isLoading && <span className="loading">Updating...</span>}</h3>
       <ul>
         {materials.map((material) => (
-          <li key={material.id}>
-            {material.name} - {material.category_name} - {material.type_name} 
-            {/* Dodaj więcej informacji o materiale */}
-          </li>
+      <li key={material.id} className="material-item"> {/* Dodaj klasę do elementu li */}
+      <div className="material-header" onClick={() => toggleMaterialDetails(material.id)}>
+        {material.name} - {material.category_name} - {material.type_name}
+        <span className={`arrow ${expandedMaterials[material.id] ? 'down' : 'right'}`}></span> 
+      </div>
+      {expandedMaterials[material.id] && (
+        <div className="material-details">
+          {/* Podziel właściwości na dwie kolumny */}
+          <div className="column">
+          {expandedMaterials[material.id] && (
+  <div className="material-details">
+    <div className="details-grid">
+      {Object.entries(expandedMaterials[material.id])
+        .filter(
+          ([key, value]) =>
+            ![
+              'id',
+              'name',
+              'category_name',
+              'type_name',
+              'Wytrzymałość na rozciąganie',
+              'Moduł Younga',
+              'Gęstość',
+            ].includes(key) &&
+            value !== 'n/d' &&
+            value !== null
+        )
+        .map(([key, value]) => (
+          <div key={key} className="property-row">
+            <span className="property-key">{key}:</span>
+            <span className="property-value">{value}</span>
+          </div>
+        ))}
+    </div>
+
+    {/* Wyświetlanie właściwości "Wytrzymałość na rozciąganie", "Moduł Younga", "Gęstość" w osobnej sekcji */}
+    <div className="details-grid">
+      {['Wytrzymałość na rozciąganie', 'Moduł Younga', 'Gęstość']
+        .filter(key => expandedMaterials[material.id][key] !== undefined && expandedMaterials[material.id][key] !== 'n/d' && expandedMaterials[material.id][key] !== null)
+        .map(key => (
+          <div key={key} className="property-row">
+            <span className="property-key">{key}:</span>
+            <span className="property-value">{expandedMaterials[material.id][key]}</span>
+          </div>
+        ))}
+    </div>
+  </div>
+)}
+          </div>
+
+        </div>
+      )}
+    </li>
         ))}
       </ul>
 

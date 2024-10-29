@@ -93,7 +93,7 @@ app.post('/api/similar_materials', async (req, res) => {
 
 
 // Wywołaj funkcję po uruchomieniu aplikacji
-// createMaterialPropertyRangesTable();
+ createMaterialPropertyRangesTable();
 
 // Endpoint to get distinct property values
 app.get('/api/property-values', async (req, res) => {
@@ -120,6 +120,15 @@ app.get('/api/property-values', async (req, res) => {
     res.json(propertyValues);
   } catch (error) {
     console.error('Error fetching property values:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/api/materials/:id/details', async (req, res) => {
+  const materialId = req.params.id;
+  try {
+    const details = await getMaterialDetails(materialId);
+    res.json(details);
+  } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -177,9 +186,71 @@ app.get('/api/filter', async (req, res) => {
   }
 });
 
+
+async function getMaterialDetails(materialId) {
+  try {
+    // Pobierz wszystkie kolumny z tabeli properties_dictionary
+    const propertiesResult = await db.select('property_name').from('properties_dictionary');
+    const propertyNames = propertiesResult.map(row => row.property_name);
+
+    // Zbuduj zapytanie SQL, aby dołączyć kolumny z tabeli properties_dictionary
+    let selectColumns = '';
+    propertyNames.forEach(propertyName => {
+      selectColumns += `, max(CASE WHEN p.property_name = '${propertyName}' THEN mp.property_value END) AS "${propertyName}" `;
+    });
+
+    const query = `
+      SELECT m.id, m.name, c.category_name, t.type_name ${selectColumns}
+      FROM materials m
+      JOIN categories c ON m.category_id = c.id
+      JOIN types t ON m.type_id = t.id
+      LEFT JOIN material_properties mp ON mp.material_id = m.id
+      LEFT JOIN properties_dictionary p ON mp.property_id = p.id
+      WHERE m.id = ?
+    `;
+//console.log(query);
+    const materialDetails = await db.raw(query, [materialId]);
+
+    // Przekształć wyniki w obiekt z kluczami będącymi nazwami właściwości
+    const formattedDetails = {};
+    if (materialDetails.length > 0) {
+      const row = materialDetails[0];
+      formattedDetails.id = row.id;
+      formattedDetails.name = row.name;
+      formattedDetails.category_name = row.category_name;
+      formattedDetails.type_name = row.type_name;
+
+      propertyNames.forEach(propertyName => {
+        formattedDetails[propertyName] = row[propertyName];
+      });
+    }
+
+    return formattedDetails;
+  } catch (error) {
+    console.error('Error fetching material details:', error);
+    throw error;
+  }
+}
+
+
 async function applyFiltersAndSuggestions(filters) {
+
+  try {
+
+    // Pobierz wszystkie kolumny z tabeli properties_dictionary
+    const propertiesQuery = 'property_name FROM properties_dictionary';
+    const propertiesResult = await db.select('property_name').from('properties_dictionary');
+    const propertyNames = propertiesResult.map(row => row.property_name);
+
+    // Zbuduj zapytanie SQL, aby dołączyć kolumny z tabeli properties_dictionary
+    let selectColumns = '';
+    propertyNames.forEach(propertyName => {
+      selectColumns += `, CASE WHEN p.property_name = '${propertyName}' THEN CAST(REPLACE(mp.property_value, ',', '.') AS REAL) END AS "${propertyName}" `;
+    });
+  //onsole.log(selectColumns);
+  selectColumns = '';
   let query = `
-    SELECT DISTINCT m.id, m.name, c.category_name, t.type_name
+    SELECT DISTINCT m.id, m.name, c.category_name, t.type_name ${selectColumns} 
     FROM materials m
     JOIN categories c ON m.category_id = c.id
     JOIN types t ON m.type_id = t.id
@@ -247,6 +318,10 @@ async function applyFiltersAndSuggestions(filters) {
   }
 
   return { filteredMaterials, suggestions };
+} catch (error) {
+  console.error('Error applying filters and suggestions:', error);
+  throw error;
+}
 }
 
 // Route for user login
@@ -289,9 +364,6 @@ app.post('/logout', authenticate, async (req, res) => {
   await db('sessions').where({ session_token: req.headers.authorization.split(' ')[1] }).del();
   res.json({ success: true });
 });
-
-
-
 
 // server.js
 app.get('/api/materials', authenticate, async (req, res) => {
@@ -345,7 +417,6 @@ app.get('/api/materials/:id/properties', authenticate, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 app.post('/api/materials/:id/properties', authenticate, async (req, res) => {
   const materialId = req.params.id;

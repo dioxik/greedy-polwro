@@ -13,4 +13,75 @@
     border: 1px solid #ccc;
     border-radius: 5px;
   }
+  .material-header {
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Wyrównaj strzałkę w pionie */
+    justify-content: space-between; /* Rozciągnij elementy na całą szerokość */
+  }
   
+  .arrow {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid black; /* Domyślnie strzałka w dół */
+    transition: transform 0.2s ease; /* Dodaj płynne przejście */
+  }
+  
+  .arrow.right {
+    transform: rotate(90deg); /* Obróć strzałkę w prawo */
+  }
+  
+  .material-details {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+/* ... (pozostałe style) */
+
+.material-item {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.material-details {
+  display: flex; /* Ustawienie flexboxa dla kolumn */
+}
+
+.column {
+  flex: 1; /* Każda kolumna zajmuje równą szerokość */
+  padding: 0 10px; /* Odstępy między kolumnami */
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.property-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  padding: 10px;
+  border-left: 2px solid #007bff; /* Lewa ramka */
+  border-right: 2px solid #007bff; /* Prawa ramka */
+  border-radius: 5px; /* Zaokrąglenie rogów */
+}
+
+.property-key {
+  font-weight: bold;
+  margin-right: 10px;
+  font-family: 'Roboto', sans-serif; /* Czytelna czcionka */
+  font-size: 1rem; /* Rozmiar czcionki */
+}
+
+.property-value {
+  font-family: 'Roboto', sans-serif; /* Czytelna czcionka */
+  font-size: 0.9rem; /* Rozmiar czcionki */
+}
